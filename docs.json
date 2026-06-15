@@ -5,45 +5,33 @@
   "description": "Referralful REST API — affiliate software for SaaS, built on Stripe. Rewardful-compatible.",
   "colors": {
     "primary": "#65A30D",
-    "light": "#84CC16",
-    "dark": "#0F172A"
+    "light": "#A3E635",
+    "dark": "#65A30D"
   },
+  "fonts": {
+    "heading": { "family": "Inter" },
+    "body": { "family": "Inter" }
+  },
+  "appearance": { "default": "light" },
   "favicon": "/favicon.png",
+  "logo": { "light": "/logo.png", "dark": "/logo.png" },
   "navigation": {
     "tabs": [
       {
         "tab": "Documentation",
         "groups": [
-          {
-            "group": "Getting started",
-            "pages": ["introduction", "authentication", "pagination", "errors"]
-          },
-          {
-            "group": "Guides",
-            "pages": ["switch-from-rewardful", "report-conversions"]
-          }
+          { "group": "Getting started", "pages": ["introduction", "authentication", "pagination", "errors"] },
+          { "group": "Guides", "pages": ["switch-from-rewardful", "report-conversions"] }
         ]
       },
-      {
-        "tab": "API reference",
-        "openapi": "openapi.json"
-      }
+      { "tab": "API reference", "openapi": "openapi.json" }
     ]
   },
-  "logo": {
-    "light": "/logo.png",
-    "dark": "/logo.png"
-  },
   "navbar": {
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://referralful.com/dashboard/developers"
-    }
+    "links": [{ "label": "Website", "href": "https://referralful.com" }],
+    "primary": { "type": "button", "label": "Dashboard", "href": "https://referralful.com/dashboard/developers" }
   },
   "footer": {
-    "socials": {
-      "website": "https://referralful.com"
-    }
+    "socials": { "website": "https://referralful.com", "x": "https://x.com/kanzariyamihir1" }
   }
 }
