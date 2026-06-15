@@ -1,0 +1,214 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Referralful API",
+    "version": "1.0.0",
+    "description": "Rewardful-compatible REST API for affiliate programs built on Stripe."
+  },
+  "servers": [{ "url": "https://api.referralful.com/v1" }],
+  "security": [{ "basicAuth": [] }],
+  "components": {
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "Use your API secret as the username, with an empty password."
+      }
+    },
+    "parameters": {
+      "page": { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+      "limit": { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 25, "maximum": 100 } }
+    },
+    "schemas": {
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "previous_page": { "type": "integer", "nullable": true },
+          "current_page": { "type": "integer" },
+          "next_page": { "type": "integer", "nullable": true },
+          "count": { "type": "integer" },
+          "limit": { "type": "integer" },
+          "total_pages": { "type": "integer" },
+          "total_count": { "type": "integer" }
+        }
+      },
+      "Error": { "type": "object", "properties": { "error": { "type": "string" } } },
+      "Campaign": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "object": { "type": "string", "example": "campaign" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "name": { "type": "string" },
+          "url": { "type": "string" },
+          "private": { "type": "boolean" },
+          "reward_type": { "type": "string", "enum": ["percent", "amount"] },
+          "commission_percent": { "type": "number", "nullable": true },
+          "commission_amount_cents": { "type": "integer", "nullable": true },
+          "commission_currency": { "type": "string" },
+          "minimum_payout_cents": { "type": "integer" },
+          "days_before_referrals_expire": { "type": "integer" },
+          "days_before_commissions_are_due": { "type": "integer" },
+          "max_commissions": { "type": "integer", "nullable": true },
+          "max_commission_period_in_months": { "type": "integer", "nullable": true }
+        }
+      },
+      "AffiliateLink": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "object": { "type": "string", "example": "affiliate_link" },
+          "url": { "type": "string" },
+          "token": { "type": "string" },
+          "visitors": { "type": "integer" },
+          "leads": { "type": "integer" },
+          "conversions": { "type": "integer" },
+          "affiliate_id": { "type": "string" }
+        }
+      },
+      "AffiliateCoupon": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "object": { "type": "string", "example": "affiliate_coupon" },
+          "token": { "type": "string", "description": "The coupon code." },
+          "affiliate_id": { "type": "string" }
+        }
+      },
+      "Affiliate": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "object": { "type": "string", "example": "affiliate" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "first_name": { "type": "string", "nullable": true },
+          "last_name": { "type": "string", "nullable": true },
+          "email": { "type": "string" },
+          "paypal_email": { "type": "string", "nullable": true },
+          "wise_email": { "type": "string", "nullable": true },
+          "state": { "type": "string" },
+          "stripe_customer_id": { "type": "string", "nullable": true },
+          "confirmed_at": { "type": "string", "format": "date-time", "nullable": true },
+          "visitors": { "type": "integer" },
+          "leads": { "type": "integer" },
+          "conversions": { "type": "integer" },
+          "campaign": { "$ref": "#/components/schemas/Campaign" },
+          "links": { "type": "array", "items": { "$ref": "#/components/schemas/AffiliateLink" } },
+          "coupon": { "$ref": "#/components/schemas/AffiliateCoupon", "nullable": true }
+        }
+      },
+      "Referral": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "object": { "type": "string", "example": "referral" },
+          "conversion_state": { "type": "string", "enum": ["visitor", "lead", "conversion"] },
+          "became_lead_at": { "type": "string", "format": "date-time", "nullable": true },
+          "became_conversion_at": { "type": "string", "format": "date-time", "nullable": true },
+          "expires_at": { "type": "string", "format": "date-time" },
+          "stripe_customer_id": { "type": "string", "nullable": true },
+          "affiliate_id": { "type": "string" },
+          "campaign_id": { "type": "string" }
+        }
+      },
+      "Commission": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "object": { "type": "string", "example": "commission" },
+          "currency": { "type": "string" },
+          "amount": { "type": "integer", "description": "Amount in cents." },
+          "state": { "type": "string", "enum": ["pending", "due", "paid", "void"] },
+          "due_at": { "type": "string", "format": "date-time", "nullable": true },
+          "paid_at": { "type": "string", "format": "date-time", "nullable": true },
+          "campaign_id": { "type": "string" },
+          "affiliate_id": { "type": "string" }
+        }
+      },
+      "Payout": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "object": { "type": "string", "example": "payout" },
+          "state": { "type": "string", "enum": ["pending", "paid"] },
+          "currency": { "type": "string" },
+          "amount": { "type": "integer", "description": "Amount in cents." },
+          "paid_at": { "type": "string", "format": "date-time", "nullable": true },
+          "affiliate_id": { "type": "string" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/campaigns": {
+      "get": {
+        "summary": "List campaigns",
+        "parameters": [{ "$ref": "#/components/parameters/page" }, { "$ref": "#/components/parameters/limit" }],
+        "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "object", "properties": { "pagination": { "$ref": "#/components/schemas/Pagination" }, "data": { "type": "array", "items": { "$ref": "#/components/schemas/Campaign" } } } } } } } }
+      },
+      "post": {
+        "summary": "Create a campaign",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["name", "url"], "properties": { "name": { "type": "string" }, "url": { "type": "string" }, "reward_type": { "type": "string", "enum": ["percent", "amount"] }, "commission_percent": { "type": "number" }, "commission_amount_cents": { "type": "integer" }, "days_before_referrals_expire": { "type": "integer" }, "minimum_payout_cents": { "type": "integer" }, "max_commission_period_in_months": { "type": "integer" } } } } } },
+        "responses": { "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Campaign" } } } } }
+      }
+    },
+    "/campaigns/{id}": {
+      "get": { "summary": "Retrieve a campaign", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Campaign" } } } } } },
+      "put": { "summary": "Update a campaign", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }], "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Campaign" } } } }, "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Campaign" } } } } } }
+    },
+    "/affiliates": {
+      "get": {
+        "summary": "List affiliates",
+        "parameters": [{ "$ref": "#/components/parameters/page" }, { "$ref": "#/components/parameters/limit" }],
+        "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "object", "properties": { "pagination": { "$ref": "#/components/schemas/Pagination" }, "data": { "type": "array", "items": { "$ref": "#/components/schemas/Affiliate" } } } } } } } }
+      },
+      "post": {
+        "summary": "Create an affiliate",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["email"], "properties": { "email": { "type": "string" }, "first_name": { "type": "string" }, "last_name": { "type": "string" }, "campaign_id": { "type": "string" }, "token": { "type": "string" }, "paypal_email": { "type": "string" }, "wise_email": { "type": "string" } } } } } },
+        "responses": { "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Affiliate" } } } } }
+      }
+    },
+    "/affiliates/{id}": {
+      "get": { "summary": "Retrieve an affiliate", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Affiliate" } } } } } },
+      "put": { "summary": "Update an affiliate", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }], "requestBody": { "content": { "application/json": { "schema": { "type": "object", "properties": { "first_name": { "type": "string" }, "last_name": { "type": "string" }, "email": { "type": "string" }, "paypal_email": { "type": "string" }, "wise_email": { "type": "string" }, "state": { "type": "string" } } } } } }, "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Affiliate" } } } } } }
+    },
+    "/affiliate_links": {
+      "get": { "summary": "List affiliate links", "parameters": [{ "name": "affiliate_id", "in": "query", "schema": { "type": "string" } }, { "$ref": "#/components/parameters/page" }, { "$ref": "#/components/parameters/limit" }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Create an affiliate link", "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["affiliate_id"], "properties": { "affiliate_id": { "type": "string" }, "token": { "type": "string" } } } } } }, "responses": { "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AffiliateLink" } } } } } }
+    },
+    "/affiliate_coupons": {
+      "get": { "summary": "List affiliate coupons", "parameters": [{ "name": "affiliate_id", "in": "query", "schema": { "type": "string" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Create an affiliate coupon", "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["affiliate_id", "token"], "properties": { "affiliate_id": { "type": "string" }, "token": { "type": "string", "description": "The coupon code." } } } } } }, "responses": { "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AffiliateCoupon" } } } } } }
+    },
+    "/referrals": {
+      "get": { "summary": "List referrals", "parameters": [{ "name": "conversion_state", "in": "query", "schema": { "type": "string", "enum": ["visitor", "lead", "conversion"] } }, { "name": "affiliate_id", "in": "query", "schema": { "type": "string" } }, { "$ref": "#/components/parameters/page" }, { "$ref": "#/components/parameters/limit" }], "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "object", "properties": { "pagination": { "$ref": "#/components/schemas/Pagination" }, "data": { "type": "array", "items": { "$ref": "#/components/schemas/Referral" } } } } } } } } }
+    },
+    "/commissions": {
+      "get": { "summary": "List commissions", "parameters": [{ "name": "state", "in": "query", "schema": { "type": "string", "enum": ["pending", "due", "paid", "void"] } }, { "name": "affiliate_id", "in": "query", "schema": { "type": "string" } }, { "$ref": "#/components/parameters/page" }, { "$ref": "#/components/parameters/limit" }], "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "object", "properties": { "pagination": { "$ref": "#/components/schemas/Pagination" }, "data": { "type": "array", "items": { "$ref": "#/components/schemas/Commission" } } } } } } } } }
+    },
+    "/commissions/{id}": {
+      "get": { "summary": "Retrieve a commission", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Commission" } } } } } },
+      "put": { "summary": "Update a commission", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }], "requestBody": { "content": { "application/json": { "schema": { "type": "object", "properties": { "amount": { "type": "integer" }, "state": { "type": "string", "enum": ["pending", "due", "paid", "void"] } } } } } }, "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Commission" } } } } } },
+      "delete": { "summary": "Void a commission", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "OK" } } }
+    },
+    "/payouts": {
+      "get": { "summary": "List payouts", "parameters": [{ "name": "state", "in": "query", "schema": { "type": "string" } }, { "name": "affiliate_id", "in": "query", "schema": { "type": "string" } }, { "$ref": "#/components/parameters/page" }, { "$ref": "#/components/parameters/limit" }], "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "object", "properties": { "pagination": { "$ref": "#/components/schemas/Pagination" }, "data": { "type": "array", "items": { "$ref": "#/components/schemas/Payout" } } } } } } } } }
+    },
+    "/payouts/{id}": {
+      "get": { "summary": "Retrieve a payout", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Payout" } } } } } }
+    },
+    "/payouts/{id}/pay": {
+      "post": { "summary": "Mark a payout as paid", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Payout" } } } } } }
+    },
+    "/conversions": {
+      "post": {
+        "summary": "Report a conversion (no Stripe)",
+        "description": "Record a sale from any billing system and create the affiliate commission. Provide at least one of referral_id, email, or coupon.",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["amount_cents"], "properties": { "referral_id": { "type": "string" }, "email": { "type": "string" }, "coupon": { "type": "string" }, "amount_cents": { "type": "integer" }, "currency": { "type": "string" }, "external_id": { "type": "string", "description": "Idempotency key (e.g. invoice id)." }, "customer_name": { "type": "string" }, "occurred_at": { "type": "string", "format": "date-time" } } } } } },
+        "responses": { "201": { "description": "Created", "content": { "application/json": { "schema": { "type": "object", "properties": { "object": { "type": "string" }, "duplicate": { "type": "boolean" }, "sale_id": { "type": "string" }, "commission": { "$ref": "#/components/schemas/Commission" } } } } } }, "422": { "description": "No matching referral / validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } } }
+      }
+    }
+  }
+}

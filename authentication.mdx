@@ -1,0 +1,50 @@
+---
+title: Authentication
+description: Authenticate with HTTP Basic auth using your API secret as the username.
+---
+
+The API uses **HTTP Basic authentication**. Pass your API secret as the username and
+leave the password empty. This is the same scheme Rewardful uses, so existing clients
+work without changes.
+
+## Get your API key
+
+Create a key in your dashboard at **Developers → API keys**
+(<a href="https://referralful.com/dashboard/developers">referralful.com/dashboard/developers</a>).
+The secret is shown once. Keys look like `rfl_live_…` and are tied to one program.
+
+<Warning>
+  Treat your secret like a password. It grants full access to your program's data. If a
+  key leaks, revoke it in the dashboard and create a new one.
+</Warning>
+
+## Send the key
+
+With `curl`, pass the secret to `-u` followed by a colon (empty password):
+
+```bash
+curl https://api.referralful.com/v1/affiliates \
+  -u rfl_live_your_secret_here:
+```
+
+Or set the `Authorization` header yourself (base64 of `secret:`):
+
+```bash
+curl https://api.referralful.com/v1/affiliates \
+  -H "Authorization: Basic $(printf 'rfl_live_your_secret_here:' | base64)"
+```
+
+A `Bearer` token is also accepted as a convenience:
+
+```bash
+curl https://api.referralful.com/v1/affiliates \
+  -H "Authorization: Bearer rfl_live_your_secret_here"
+```
+
+## Errors
+
+A missing or invalid key returns `401`:
+
+```json
+{ "error": "Invalid API key." }
+```

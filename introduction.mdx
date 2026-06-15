@@ -1,0 +1,49 @@
+---
+title: Introduction
+description: The Referralful REST API — manage affiliates, referrals, commissions, and report conversions without Stripe.
+---
+
+The Referralful REST API lets you manage your affiliate program programmatically:
+create and update affiliates, read referrals and commissions, mark payouts as paid,
+and report conversions from any billing system, not just Stripe.
+
+## Base URL
+
+```
+https://api.referralful.com/v1
+```
+
+All requests are made over HTTPS. Responses are JSON.
+
+## Built to be Rewardful-compatible
+
+If you already use Rewardful, switching is mostly a find-and-replace. The endpoints,
+object shapes, field names, authentication, and pagination match Rewardful's REST API,
+so you change the base URL and your API key, and your existing code keeps working.
+
+<Card title="Switching from Rewardful?" href="/switch-from-rewardful">
+  See exactly what changes (the host and the key) and what stays the same (everything else).
+</Card>
+
+## Don't use Stripe?
+
+Stripe merchants get conversions tracked automatically. If you bill another way, report
+each sale with a single API call and Referralful runs it through the same commission
+engine.
+
+<Card title="Report conversions via API" href="/report-conversions">
+  Send a sale from your backend, attribute it to an affiliate, and create the commission.
+</Card>
+
+## Resources
+
+| Resource | Description |
+| --- | --- |
+| Campaigns | Programs with their commission and cookie rules |
+| Affiliates | The people promoting you, with their links and coupons |
+| Affiliate links | Tracking links (tokens) for an affiliate |
+| Affiliate coupons | Promo codes tied to an affiliate |
+| Referrals | Visitors, leads, and conversions an affiliate drove |
+| Commissions | Amounts owed to affiliates per sale |
+| Payouts | Batches of commissions paid out |
+| Conversions | Report a sale from any billing system |

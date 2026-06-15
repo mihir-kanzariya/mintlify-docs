@@ -1,0 +1,20 @@
+---
+title: Errors
+description: Standard HTTP status codes with a JSON error message.
+---
+
+The API uses conventional HTTP status codes. Errors return a JSON body with an `error`
+string.
+
+```json
+{ "error": "email is required." }
+```
+
+| Status | Meaning |
+| --- | --- |
+| `200` | Success |
+| `201` | Resource created |
+| `401` | Missing or invalid API key |
+| `404` | Resource not found |
+| `422` | Validation failed (e.g. a required field is missing) |
+| `500` | Something went wrong on our end |

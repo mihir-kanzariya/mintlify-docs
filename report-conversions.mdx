@@ -1,0 +1,64 @@
+---
+title: Report conversions (no Stripe)
+description: Record a sale from any billing system and create the affiliate commission.
+---
+
+If you bill outside Stripe (Paddle, Lemon Squeezy, Chargebee, your own billing, manual
+invoices), report each sale with one API call. Referralful runs it through the same
+commission engine Stripe sales use.
+
+## How attribution works
+
+When a visitor arrives through an affiliate link, our tracking snippet stores a referral
+and exposes its id as `window.AffID.referral`. Capture that id at signup or checkout and
+send it back when the customer pays. You can also attribute by the customer's email (if
+they were tracked as a lead) or by an affiliate's coupon code.
+
+## Report a sale
+
+```bash
+curl https://api.referralful.com/v1/conversions \
+  -u rfl_live_your_secret: \
+  -H "Content-Type: application/json" \
+  -d '{
+    "referral_id": "the-referral-id-from-window-AffID",
+    "amount_cents": 4900,
+    "currency": "usd",
+    "email": "customer@example.com",
+    "external_id": "invoice_12345"
+  }'
+```
+
+Provide at least one of `referral_id`, `email`, or `coupon` to attribute the sale.
+
+### Idempotency and renewals
+
+`external_id` makes the call safe to retry. For subscriptions, send one conversion per
+charge, each with its own `external_id` (e.g. the invoice id). Recurring commissions are
+created automatically as long as the campaign's commission period allows it.
+
+### Refunds
+
+Reversing a sale (and clawing back its commission) uses the same `external_id`. Refund
+support via the API is rolling out; until then, void the commission with
+`DELETE /v1/commissions/:id`.
+
+## Response
+
+```json
+{
+  "object": "conversion",
+  "duplicate": false,
+  "sale_id": "…",
+  "commission": {
+    "id": "…",
+    "object": "commission",
+    "amount": 1470,
+    "currency": "usd",
+    "state": "pending"
+  }
+}
+```
+
+If no affiliate referral matches, you get `422` with
+`{ "error": "No matching referral found for this conversion." }`.

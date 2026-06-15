@@ -1,0 +1,49 @@
+---
+title: Switch from Rewardful
+description: Point your existing Rewardful integration at Referralful with two changes.
+---
+
+The Referralful API mirrors Rewardful's REST API, so moving over is a find-and-replace,
+not a rewrite.
+
+## What changes
+
+<Steps>
+  <Step title="Change the base URL">
+    Replace `https://api.getrewardful.com/v1` with `https://api.referralful.com/v1`.
+  </Step>
+  <Step title="Change the API key">
+    Swap your Rewardful API Secret for a Referralful key from
+    [your dashboard](https://referralful.com/dashboard/developers). Auth is the same:
+    HTTP Basic with the key as the username.
+  </Step>
+</Steps>
+
+That's it. The paths, object shapes, field names, pagination, and error format are the
+same.
+
+## What stays the same
+
+- **Endpoints** — `/campaigns`, `/affiliates`, `/affiliate_links`, `/affiliate_coupons`,
+  `/referrals`, `/commissions`, `/payouts`.
+- **Object fields** — `commission_amount_cents`, `days_before_referrals_expire`,
+  `minimum_payout_cents`, `max_commission_period_in_months`, and the rest match.
+- **Pagination** — the same `{ pagination, data }` envelope.
+
+## Bring your data with you
+
+Before you flip the API over, import your existing Rewardful program (campaigns,
+affiliates, links, coupons, referrals, commissions, payouts) in one click from
+**Dashboard → Import**. Affiliate tokens are preserved, so existing referral links keep
+working.
+
+## Example
+
+The only diff in a typical client:
+
+```diff
+- const BASE = "https://api.getrewardful.com/v1";
+- const KEY  = "your_rewardful_secret";
++ const BASE = "https://api.referralful.com/v1";
++ const KEY  = "rfl_live_your_referralful_key";
+```
