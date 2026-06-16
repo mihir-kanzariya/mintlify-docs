@@ -1,0 +1,96 @@
+---
+title: Quickstart
+description: Go from zero to tracking referrals and paying affiliates in a few minutes.
+---
+
+This guide gets a working affiliate program live: track referral clicks, attribute sales
+(with or without Stripe), and read the commissions you owe.
+
+<Steps>
+  <Step title="Create an API key">
+    In your dashboard, open **Developers → API keys**
+    (<a href="https://referralful.com/dashboard/developers">referralful.com/dashboard/developers</a>)
+    and create one. The secret is shown once. See [Authentication](/authentication) for how to
+    send it.
+  </Step>
+
+  <Step title="Add the tracking snippet">
+    Drop this into the `<head>` of every page on your site. It records referral clicks and
+    exposes the referral id as `window.AffID.referral`:
+
+    ```html
+    <script async
+      src="https://cdn.jsdelivr.net/gh/mihir-kanzariya/affiliate-script@0.3.0/dist/aff.min.js"
+      data-account="YOUR_ACCOUNT_SLUG"
+      data-track-url="https://referralful.com"></script>
+    ```
+
+    Find your exact snippet in **Dashboard → Settings → Tracking snippet**.
+  </Step>
+
+  <Step title="Attribute the sale">
+    Tell Referralful which affiliate to credit when a customer pays.
+
+    <Tabs>
+      <Tab title="Stripe">
+        Pass the captured referral as `client_reference_id` on the Checkout Session:
+
+        ```js
+        const session = await stripe.checkout.sessions.create({
+          client_reference_id: referral, // = window.AffID.referral from the browser
+        });
+        ```
+
+        Conversions and recurring commissions track automatically from Stripe.
+      </Tab>
+      <Tab title="Any other billing (no Stripe)">
+        Report the sale from your backend when the customer pays:
+
+        ```bash
+        curl https://api.referralful.com/v1/conversions \
+          -u rfl_live_your_secret: \
+          -H "Content-Type: application/json" \
+          -d '{
+            "referral_id": "the-referral-id-from-window-AffID",
+            "amount_cents": 4900,
+            "currency": "usd",
+            "email": "customer@example.com",
+            "external_id": "invoice_12345"
+          }'
+        ```
+
+        See [Report conversions](/report-conversions) for renewals, refunds, and attribution by
+        email or coupon.
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Add affiliates">
+    Let people join through your signup page, or create them via the API:
+
+    ```bash
+    curl https://api.referralful.com/v1/affiliates \
+      -u rfl_live_your_secret: \
+      -H "Content-Type: application/json" \
+      -d '{ "email": "alex@example.com", "first_name": "Alex" }'
+    ```
+
+    The response includes the affiliate's `links` (their tracking tokens) to share.
+  </Step>
+
+  <Step title="Verify it works">
+    Make a test purchase through an affiliate link, then read the data back:
+
+    ```bash
+    curl https://api.referralful.com/v1/referrals   -u rfl_live_your_secret:
+    curl https://api.referralful.com/v1/commissions -u rfl_live_your_secret:
+    ```
+
+    You should see a referral move to `conversion` and a commission appear.
+  </Step>
+</Steps>
+
+## Coming from Rewardful?
+
+Change the base URL and key, and your existing code works unchanged. See
+[Switch from Rewardful](/switch-from-rewardful).
