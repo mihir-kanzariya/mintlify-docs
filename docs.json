@@ -42,6 +42,7 @@
           {
             "group": "Guides",
             "pages": [
+              "attribution",
               "switch-from-rewardful",
               "report-conversions"
             ]

@@ -1,0 +1,77 @@
+---
+title: Attribution methods
+description: How Referralful credits the right affiliate, including setups where the marketing site and app are on different domains.
+---
+
+Referralful credits an affiliate using whichever signal it can find at the time of the sale.
+Pick the method that matches how your site and billing are set up.
+
+## Quick guide
+
+| Method | Needs the snippet? | Works across separate domains? |
+| --- | --- | --- |
+| **Referral link (cookie)** | Yes | Same registrable domain only (apex + subdomains) |
+| **Pass the referral id** | Capture only | Yes — any domains |
+| **Coupon code** | No | Yes — any domains |
+| **Customer email** | Yes (to track the lead) | Same registrable domain only |
+
+## 1. Referral link (cookie) — the default
+
+A visitor lands on `yourbrand.com/?via=token`. The snippet stores the referral in a cookie on
+your **registrable domain** (`.yourbrand.com`), so it is shared across the apex and every
+subdomain automatically — `yourbrand.com`, `www.yourbrand.com`, and `app.yourbrand.com` all
+see it. Each page that starts checkout needs the snippet loaded so `window.AffID.referral` is
+available.
+
+<Note>
+  The cookie is shared across **subdomains of one registrable domain**. If your marketing site
+  and app are on **completely different domains** (e.g. `brand-marketing.com` and `brandapp.io`),
+  the cookie cannot bridge them — use method 2 or 3 below.
+</Note>
+
+## 2. Pass the referral id (separate domains)
+
+Capture `window.AffID.referral` on the landing page, carry it with the user (store it on their
+account, or pass it through your signup URL), and send it as `referral_id` when they pay:
+
+```bash
+curl https://api.referralful.com/v1/conversions \
+  -u rfl_live_your_secret: \
+  -H "Content-Type: application/json" \
+  -d '{ "referral_id": "ref_abc123", "amount_cents": 4900, "external_id": "invoice_12345" }'
+```
+
+This works no matter how many domains are involved, because you carry the id yourself.
+
+## 3. Coupon codes (cookieless)
+
+Give each affiliate a promo code. When a customer uses it, the sale is attributed by the code —
+no link, no cookie, no snippet required. This is the most robust option for fully separate
+domains or sites you can't add JavaScript to.
+
+Assign a code to an affiliate:
+
+```bash
+curl https://api.referralful.com/v1/affiliate_coupons \
+  -u rfl_live_your_secret: \
+  -H "Content-Type: application/json" \
+  -d '{ "affiliate_id": "aff_123", "token": "ALEX20" }'
+```
+
+Then:
+- **Stripe** — when the customer applies the coupon (or promotion code) at Checkout, Referralful
+  reads it from the webhook and credits the affiliate automatically.
+- **Any other billing** — pass the code as `coupon` when reporting the sale:
+
+  ```bash
+  curl https://api.referralful.com/v1/conversions \
+    -u rfl_live_your_secret: \
+    -d '{ "coupon": "ALEX20", "amount_cents": 4900, "external_id": "invoice_12345" }'
+  ```
+
+## 4. Customer email
+
+If the visitor was tracked as a lead (snippet on the marketing site) and later pays, Referralful
+can match the sale by the customer's email. Pass `email` to `/v1/conversions`, or it resolves
+automatically for Stripe. This needs the lead to have been tracked first, so it shares the
+same-domain limitation as the cookie.
