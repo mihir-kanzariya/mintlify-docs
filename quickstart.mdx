@@ -26,6 +26,14 @@ This guide gets a working affiliate program live: track referral clicks, attribu
     ```
 
     Find your exact snippet in **Dashboard → Settings → Tracking snippet**.
+
+    <Note>
+      **Separate app subdomain?** If your marketing site is `yourbrand.com` and your app or
+      checkout is on `app.yourbrand.com`, add the snippet to **both**. The referral cookie is
+      stored on your registrable domain (`.yourbrand.com`), so it is shared across every
+      subdomain automatically — but each page that starts checkout needs the snippet loaded so
+      `window.AffID.referral` is available there.
+    </Note>
   </Step>
 
   <Step title="Attribute the sale">
