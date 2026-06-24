@@ -20,9 +20,9 @@ This guide gets a working affiliate program live: track referral clicks, attribu
 
     ```html
     <script async
-      src="https://cdn.jsdelivr.net/gh/mihir-kanzariya/affiliate-script@0.3.0/dist/aff.min.js"
+      src="https://cdn.jsdelivr.net/gh/mihir-kanzariya/affiliate-script@0.4/dist/aff.min.js"
       data-account="YOUR_ACCOUNT_SLUG"
-      data-track-url="https://referralful.com"></script>
+      data-track-url="https://api.referralful.com"></script>
     ```
 
     Find your exact snippet in **Dashboard → Settings → Tracking snippet**.
@@ -50,6 +50,13 @@ This guide gets a working affiliate program live: track referral clicks, attribu
         ```
 
         Conversions and recurring commissions track automatically from Stripe.
+
+        <Warning>
+          It must be `client_reference_id` **on the Checkout Session** — not customer
+          `metadata`, and not the Subscription. Referralful only reads `client_reference_id`
+          (and, as a fallback, the email you pass to `AffID.convert`). The most common cause
+          of "clicks track but conversions don't" is the referral being sent somewhere else.
+        </Warning>
       </Tab>
       <Tab title="Any other billing (no Stripe)">
         Report the sale from your backend when the customer pays:
