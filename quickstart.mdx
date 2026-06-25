@@ -105,6 +105,49 @@ This guide gets a working affiliate program live: track referral clicks, attribu
   </Step>
 </Steps>
 
+## Make sure conversions actually track
+
+The snippet tracking clicks is only half of it — these are the things that most
+often cause "clicks track but conversions don't":
+
+<AccordionGroup>
+  <Accordion title="Cover every checkout path">
+    If customers can start a subscription from more than one place — onboarding, a
+    pricing page, an in-app "upgrade" modal — set `client_reference_id` in **all** of
+    them. Miss one and sales from that path won't attribute.
+  </Accordion>
+  <Accordion title="Read the referral at checkout time, not page load">
+    `window.AffID.referral` is available as soon as the tracking script has loaded.
+    Read it **at the moment you create the Checkout Session**, not from a value
+    captured on first render that might still be empty if the user clicked quickly.
+  </Accordion>
+  <Accordion title="It goes on the Session, not the customer">
+    `client_reference_id` must be on the **Checkout Session**. Putting the referral
+    in customer `metadata` or on the Subscription won't work — Referralful doesn't
+    read those.
+  </Accordion>
+  <Accordion title="Verify it in Stripe">
+    Open the Checkout Session in the Stripe Dashboard — `client_reference_id` should
+    show your referral id. If it's empty, the referral never reached checkout (fix the
+    integration); if it's set but no commission appears, check that the customer paid
+    (a $0 trial doesn't create a commission until the first real charge).
+  </Accordion>
+</AccordionGroup>
+
+## Free trials
+
+A trial subscription is handled automatically — you don't configure anything extra:
+
+- **At signup:** the referral is recorded as a **conversion** and the customer is
+  linked to the affiliate. No commission yet (no money moved).
+- **At the first real charge** (trial end): the commission is created for the
+  affiliate, based on the amount actually charged.
+- **If they cancel during the trial:** no charge, no commission.
+
+Just pass `client_reference_id` once at checkout — Referralful handles the
+trial → paid transition. In your dashboard, trial subscribers show under **Trials**
+until they're charged, then move to **Conversions**.
+
 ## Coming from Rewardful?
 
 Change the base URL and key, and your existing code works unchanged. See
